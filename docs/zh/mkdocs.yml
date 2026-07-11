@@ -512,8 +512,9 @@ nav:
     - ai/ai-for-security/introduction.md
     - Agentic AI:
       - ai/ai-for-security/agent/introduction.md
-      - ai/ai-for-security/agent/agent-loop.md
-      - ai/ai-for-security/agent/react.md
+      - Agent Loop:
+        - ai/ai-for-security/agent/agent-loop/intro.md
+        - ai/ai-for-security/agent/agent-loop/react.md
   - Security for AI:
     - ai/security-for-ai/introduction.md
 - Android:

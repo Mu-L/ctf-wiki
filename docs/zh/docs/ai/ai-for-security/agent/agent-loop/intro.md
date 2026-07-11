@@ -2,25 +2,39 @@
 
 ## 简介
 
-Agent Loop 是一种最简单的 AI agent 范式，也是是一种用于实现基于大模型智能体（LLM-based Agent）的基础执行机制，其核心是通过“观察（Observation）—>状态更新（State Update）—>行动（Action）”的循环，使智能体能够在环境反馈驱动下逐步完成任务——在该框架中，智能体首先接收任务目标，并在每一轮迭代中基于当前观测信息与内部状态进行推理，生成下一步行动决策。行动通常通过工具调用（Tool Use）或环境交互来执行，其结果以新的观测信息形式返回，并用于更新内部状态或记忆，从而进入下一轮循环，直至满足终止条件（如任务完成、达到最大步数或触发停止策略）。
+Agent Loop 是一种用于实现 AI Agent 的基础执行机制，即 **“agent 如何被持续驱动执行的底层控制结构”**， 其核心是一个 “观察（Observation）—>状态更新（State Update）—>行动（Action）” 的 **循环** ，从而使 AI Agent 能够在环境反馈驱动下逐步完成任务。
+
+在 Agent Loop 框架中， AI Agent 首先接收任务目标，并在每一轮迭代中基于当前观测信息与内部状态进行推理，生成下一步行动决策。行动通常通过工具调用（Tool Use）或环境交互来执行，其结果以新的观测信息形式返回，并用于更新内部状态或记忆，从而进入下一轮循环，直至满足终止条件（如任务完成、达到最大步数或触发停止策略）。
 
 ![](./figure/agent-loop.jpg)
 
-从系统角度来看，Agent Loop 可以被形式化为一种离散时间的决策过程，其结构类似于部分可观测马尔可夫决策过程（POMDP）的简化实现。在这一过程中，智能体并不直接访问完整环境状态，而是依赖有限的观测与历史信息进行近似决策。因此，状态表示与记忆机制在该框架中具有关键作用。
+从系统角度来看，Agent Loop 可以被形式化为一种离散时间的决策过程，其结构类似于部分可观测马尔可夫决策过程（POMDP）的简化实现。在这一过程中， AI Agent 并不直接访问完整环境状态，而是依赖有限的观测与历史信息进行近似决策。因此，状态表示与记忆机制在该框架中具有关键作用。
 
-需要强调的是，Agent Loop 本质上定义的是智能体的核心执行与交互框架，智能体的能力不仅取决于循环结构本身，还依赖于推理模型能力、工具集成质量、记忆设计以及任务规划策略等多个组件的协同作用。
+Agent Loop 本质上是一种通用的基础执行框架的抽象概念，在工程实践中开发者往往会在 Loop 之上构建更复杂的执行策略，例如引入显式规划（Planning）、反思机制（Reflection）或分层控制策略（Hierarchical Control）等。
 
-在工程实践中，Agent Loop 常作为基础运行时结构，被用于构建更复杂的智能体系统，例如引入显式规划（Planning）、反思机制（Reflection）或分层控制策略（Hierarchical Control）后的扩展架构。
+需要强调的是，Agent Loop 本质上定义的是 AI Agent 的核心执行与交互框架， AI Agent 的能力不仅取决于循环结构本身，还依赖于推理模型能力、工具集成质量、记忆设计以及任务规划策略等多个组件的协同作用。同样是相似结构的 Agent Loop，在使用的模型、Agent 架构设计、任务规划策略等因素不同的情况下，其任务执行能力水平也可能完全不同。
 
-## 构建基础的 Agent Loop
+## 教程：构建基础的 Agent Loop
 
 接下来我们讲述如何构建一个最简易的 Agent Loop，使其拥有在环境反馈驱动下逐步完成任务的能力，并使用该 Agent Loop 真正解决一些简单的问题。
 
-完整代码可以参见 [https://gist.github.com/arttnba3/2e4b7e531b4e33836651df60bf08cb86](https://gist.github.com/arttnba3/2e4b7e531b4e33836651df60bf08cb86) ，不过在下方的详细说明当中我们实际上已经给出绝大部分的核心代码。
+完整代码可以参见 []() ，不过在下方的详细教程文本当中我们实际上已经给出绝大部分的核心代码。
 
-#### OpenAI-Compatible Request
+#### 1. Loop & Context Design
 
-首先我们会需要一个向 LLM API 进行请求的函数，绝大部分主流 AI 平台都支持或兼容 OpenAI 格式的请求，因此我们只需要实现 OpenAI-Compatible 的请求，我们就能使用绝大部分主流 AI 平台的 API，例如 DeepSeek、Doubao、Ollama 等。简而言之，我们需要对 API 使用 POST 请求，并将模型信息与对话上下文包裹在如下格式的 JSON 数据中：
+首先我们先设计一下我们的 Agent 该如何行动，一个最简单也最容易想到的的设计方案便是：
+
+- 1. 我们给出一个初始目标
+- 2. LLM 根据这个目标进行动作（通常是外部工具调用，例如执行 bash 指令）
+- 3. 将动作的结果告诉 LLM
+- 4. LLM 根据这个结果生存下一步动作
+- 5. 重复 3～4 直到达成目标，从而退出循环
+
+
+
+#### 2. OpenAI-Compatible Request
+
+我们还需要一个向 LLM API 进行请求的函数，绝大部分主流 AI 平台都支持或兼容 OpenAI 格式的请求，因此我们只需要实现 OpenAI-Compatible 的请求，我们就能使用绝大部分主流 AI 平台的 API，例如 DeepSeek、Doubao、Ollama 等。简而言之，我们需要对 API 使用 POST 请求，并将模型信息与对话上下文包裹在如下格式的 JSON 数据中：
 
 ```json
 {
@@ -51,7 +65,7 @@ Content-Type: application/json
 Authorization: Bearer $OPENAI_API_KEY
 ```
 
-> 对于一些本地部署模型的框架，Authorization 有的时候不是必要的，如果你不手动开启的话。
+> 对于一些本地部署模型的框架，Authorization 有的时候不是必要的——如果你不手动开启的话。
 
 返回结果通常也是一个 JSON 对象，对我们而言当前阶段只需要关注其中的 `"choice"` 字段，其包含了模型的回复：
 
@@ -69,7 +83,7 @@ Authorization: Bearer $OPENAI_API_KEY
 }
 ```
 
-因此要实现和模型见的对话并不难，以下是一个非常简单的代码实现例子：
+因此要实现和模型间的对话并不难，以下是一个非常简单的代码实现例子：
 
 ```python
 class APIException(Exception):
@@ -89,7 +103,9 @@ def req_openai_compatible_api(url, model, headers, messages) -> str:
         raise APIException(f"API request failed with status code {resp.status_code}: {resp.text}")
 ```
 
-#### 在环境中执行代码
+> 更详细的 API 标准相关说明请大家自行参考相关文档的定义，这里只是给出一个最小的可运行例子。
+
+#### 2. 在环境中执行代码
 
 接下来我们考虑如何在环境当中进行代码执行，出于安全策略考虑，目前我们选择仅让 Agent 拥有着在指定 Docker 容器内进行代码执行的权能
 
@@ -128,7 +144,7 @@ def run_cmd_in_docker(container, cmd):
 
 ```
 
-#### 构建 LLM-based 的 Agent Loop
+#### 3. 构建 LLM-based 的 Agent Loop
 
 下面总算来到最为核心的一步，也就是构建一个观测->执行的循环，让咱们的 Agent Loop 真正地动起来
 
@@ -240,7 +256,7 @@ def agent_loop(container: str, msg_list: list, llm_config: dict):
         })
 ```
 
-#### 调用 Agent Loop
+#### 4. 调用 Agent Loop
 
 最后就是在主函数中解析配置文件并调用 Agent Loop 了，因为前面我们已经完成了绝大部分工作所以这里直接调用我们封装好的接口把参数传进去即可，以下是一份代码实现示例：
 
@@ -270,7 +286,7 @@ if __name__ == '__main__':
     main(sys.argv)
 ```
 
-## 实战：利用 Agent Loop 解决简单的 CTF 题目
+#### 5. 实战：利用 Agent Loop 解决简单的 CTF 题目
 
 这里我们以 `[强网杯 2019]随便注` 这道题目作为我们的自动化测试的例子。测试平台选择 [https://buuoj.cn/](https://buuoj.cn/) 。我们首先在平台上启动这道题的靶机，然后将靶机地址作为初始输入给到我们的 Agent Loop，选取 DeepSeek 官网的 `deepseek-reasoner` 模型（2025 年发布的 DeepSeek-R1） 作为我们的基模，得到如下自动化解题过程：
 
@@ -1043,4 +1059,4 @@ Task completed.
 
 可以看到的是，虽然我们的 Agent Loop 的整个决策过程或许还有些傻，但我们的 Agent Loop 确乎成功地完成了对目标靶机的攻击，并成功地获取到了环境中的 flag。这证明了基础的 Agent Loop 确实存在一定程度上的自动化完成任务的能力。
 
-由于 AI Agent 本质上是一门复杂的系统工程，因此在接下来的章节当中，我们将逐渐引入真实的开源项目（如 [https://github.com/A3INFRA/Flagent](https://github.com/A3INFRA/Flagent) 、[https://github.com/verialabs/ctf-agent](https://github.com/verialabs/ctf-agent)、[https://github.com/NYU-LLM-CTF/nyuctf_agents](https://github.com/NYU-LLM-CTF/nyuctf_agents)、[https://github.com/openai/codex](https://github.com/openai/codex) 等）作为示例代码进行讲解，而不仅仅囿于现在这样简单的朴素代码说明与构造。
+由于 AI Agent 本质上是一门复杂的系统工程，因此在接下来的章节当中，我们将逐渐引入真实的开源项目（如 [https://github.com/A3INFRA/Flagent](https://github.com/A3INFRA/Flagent) 、[https://github.com/deepseek-ai/awesome-deepseek-agent](https://github.com/deepseek-ai/awesome-deepseek-agent)、[https://github.com/NYU-LLM-CTF/nyuctf_agents](https://github.com/NYU-LLM-CTF/nyuctf_agents)、[https://github.com/openai/codex](https://github.com/openai/codex) 、[https://github.com/Yeti-791/Tsec-Hackathon](https://github.com/Yeti-791/Tsec-Hackathon) （按字母排序） 等）作为示例代码进行讲解，而不仅仅囿于现在这样简单的朴素代码说明与构造。
