@@ -508,15 +508,53 @@ nav:
       - pwn/hardware/trusted-computing/tee.md
 - AI:
   - ai/introduction.md
+  - Basic Knowledge:
+    - ai/fundamentals/introduction.md
+    - Machine Learning:
+      - ai/fundamentals/machine-learning/introduction.md
+    - Deep Learning:
+      - ai/fundamentals/deep-learning/introduction.md
+    - Large Language Models:
+      - ai/fundamentals/large-language-model/introduction.md
   - AI for Security:
     - ai/ai-for-security/introduction.md
     - Agentic AI:
       - ai/ai-for-security/agent/introduction.md
+      - Architecture:
+        - ai/ai-for-security/agent/architecture/introduction.md
+        - ai/ai-for-security/agent/architecture/components.md
       - Agent Loop:
         - ai/ai-for-security/agent/agent-loop/intro.md
-        - ai/ai-for-security/agent/agent-loop/react.md
+        - Patterns:
+          - ai/ai-for-security/agent/agent-loop/patterns/react.md
+          - ai/ai-for-security/agent/agent-loop/patterns/plan-and-execute.md
+          - ai/ai-for-security/agent/agent-loop/patterns/reflection.md
+      - Memory:
+        - ai/ai-for-security/agent/memory/introduction.md
+      - Tool Use:
+        - ai/ai-for-security/agent/tool-use/introduction.md
+      - Multi-Agent Orchestration:
+        - ai/ai-for-security/agent/multi-agent-orchestration/introduction.md
+        - Patterns:
+          - ai/ai-for-security/agent/multi-agent-orchestration/patterns/introduction.md
+          - ai/ai-for-security/agent/multi-agent-orchestration/patterns/swarm.md
+        - Knowledge Sharing:
+          - ai/ai-for-security/agent/multi-agent-orchestration/knowledge-sharing/introduction.md
   - Security for AI:
     - ai/security-for-ai/introduction.md
+    - Attacks:
+      - ai/security-for-ai/attacks/intro.md
+      - Model Integrity:
+        - ai/security-for-ai/attacks/integrity/introduction.md
+      - Model Confidentiality:
+        - ai/security-for-ai/attacks/confidentiality/introduction.md
+      - Model Availability:
+        - ai/security-for-ai/attacks/availability/introduction.md
+      - LLM Security:
+        - ai/security-for-ai/attacks/llm/introduction.md
+        - ai/security-for-ai/attacks/llm/prompt-injection.md
+    - Defenses:
+      - ai/security-for-ai/defenses/introduction.md
 - Android:
   - android/basic_develop/basic_develop.md
   - Android 运行机制简述:
